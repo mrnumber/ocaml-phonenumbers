@@ -1,0 +1,6 @@
+name="phonenumbers"
+version="1.0"
+description="Ocaml version of the libphonenumber project"
+requires=""
+archive(byte) = "phonenumbers.cma"
+archive(native) = "phonenumbers.cmxa"

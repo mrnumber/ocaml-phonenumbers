@@ -1,0 +1,235 @@
+TARGET     =
+CC         = gcc
+CXX        = g++
+CFLAGS     = 
+prefix     = /usr/local
+exec_prefix= ${prefix}
+SRCS       =
+INCLUDES   =
+LIBS       =
+INTERFACE  =
+INTERFACEDIR  =
+INTERFACEPATH = $(INTERFACEDIR)$(INTERFACE)
+SWIGOPT    =
+SWIG       = swig
+
+LIBM       = -lieee -lm
+LIBC       = 
+LIBCRYPT   = -lcrypt
+SYSLIBS    = $(LIBM) $(LIBC) $(LIBCRYPT)
+LIBPREFIX  =
+
+# RUNTOOL is for use with runtime tools, eg set it to valgrind
+RUNTOOL    =
+# COMPILETOOL is a way to run the compiler under another tool, or more commonly just to stop the compiler executing
+COMPILETOOL=
+
+# X11 options
+
+XLIB       = -lX11
+XINCLUDE   = # no special path needed
+
+IWRAP      = $(INTERFACE:.i=_wrap.i)
+ISRCS      = $(IWRAP:.i=.c)
+ICXXSRCS   = $(IWRAP:.i=.cxx)
+IOBJS      = $(IWRAP:.i=.o)
+
+##################################################################
+# Dynamic loading for C++
+# If you are going to be building dynamic loadable modules in C++,
+# you may need to edit this line appropriately.
+#
+# This line works for g++, but I'm not sure what it might be
+# for other C++ compilers
+##################################################################
+
+CPP_DLLIBS = #-L/usr/local/lib/gcc-lib/sparc-sun-solaris2.5.1/2.7.2 \
+             -L/usr/local/lib -lg++ -lstdc++ -lgcc
+
+# Solaris workshop 5.0
+# CPP_DLLIBS = -L/opt/SUNWspro/lib -lCrun
+
+# Symbols used for using shared libraries
+SO=		.so
+LDSHARED=	gcc -shared
+CCSHARED=	-fpic
+CXXSHARED=      gcc -shared
+
+# This is used for building shared libraries with a number of C++
+# compilers.   If it doesn't work,  comment it out.
+CXXSHARED= g++ -shared 
+
+OBJS      = $(SRCS:.c=.o) $(CXXSRCS:.cxx=.o)
+
+##################################################################
+#####                          Ocaml                         #####
+##################################################################
+
+OCC=ocamlc
+OCAMLDLGEN=ocamldlgen
+OCAMLFIND=ocamlfind
+OCAMLMKTOP=ocamlmktop $(SWIGWHERE)
+NOLINK ?= false
+OCAMLPP= -pp "camlp4o ./swigp4.cmo"
+OCAMLP4WHERE=`$(COMPILETOOL) camlp4 -where`
+OCAMLCORE=\
+	rm -rf swig.mli swig.ml swigp4.ml && \
+	$(SWIG) -ocaml -co swig.mli 2>/dev/null &&  \
+	$(SWIG) -ocaml -co swig.ml 2>/dev/null &&  \
+	$(SWIG) -ocaml -co swigp4.ml 2>/dev/null &&  \
+	$(OCC) -c swig.mli &&  \
+	$(OCC) -c swig.ml &&  \
+	$(OCC) -I $(OCAMLP4WHERE) -pp "camlp4o pa_extend.cmo q_MLast.cmo" \
+		-c swigp4.ml
+
+ocaml_lib: $(SRCS)
+	$(OCAMLCORE)
+	$(SWIG) -ocaml $(SWIGOPT) $(INTERFACEPATH)
+	$(OCC) -g -c -ccopt -g -ccopt "$(INCLUDES)" $(ISRCS) $(SRCS)
+	$(CXXSHARED) $(CFLAGS) $(CCSHARED) $(CFLAGS) -o $(INTERFACE:%.i=%.so) \
+		$(INTERFACE:%.i=%_wrap.o) $(OBJS) $(LIBS)
+	$(OCC) -g -c $(INTERFACE:%.i=%.mli)
+	$(OCC) -g -c $(INTERFACE:%.i=%.ml)
+	test -z "$(PROGFILE:%.ml=%.mli)" || test -f "$(PROGFILE:%.ml=%.mli)" && \
+		$(OCC) $(OCAMLPP) -c $(PROGFILE:%.ml=%.mli)
+	test -z "$(PROGFILE)" || test -f "$(PROGFILE)" && \
+		$(OCC) $(OCAMLPP) -c $(PROGFILE)
+	$(NOLINK) || $(OCC) -g -ccopt -g -cclib -g -a -custom -o $(TARGET).cma \
+		swig.cmo \
+		$(INTERFACE:%.i=%.cmo) \
+		$(PROGFILE:%.ml=%.cmo) \
+		$(INTERFACE:%.i=%_wrap.o) -dllib $(INTERFACE:%.i=%.so)
+
+ocaml_static: $(SRCS)
+	$(OCAMLCORE)
+	$(SWIG) -ocaml $(SWIGOPT) $(INTERFACEPATH)
+	$(OCC) -g -c -ccopt -g -ccopt "$(INCLUDES)" $(ISRCS) $(SRCS)
+	$(OCC) -g -c $(INTERFACE:%.i=%.mli)
+	$(OCC) -g -c $(INTERFACE:%.i=%.ml)
+	test -z "$(PROGFILE)" || test -f "$(PROGFILE)" && \
+		$(OCC) $(OCAMLPP) -c $(PROGFILE)
+	$(NOLINK) || $(OCC) -g -ccopt -g -cclib -g -custom -o $(TARGET) \
+		swig.cmo \
+		$(INTERFACE:%.i=%.cmo) \
+		$(PROGFILE:%.ml=%.cmo) \
+		$(INTERFACE:%.i=%_wrap.o) $(OBJS) -cclib "$(LIBS)"
+
+ocaml_static_toplevel: $(SRCS)
+	$(OCAMLCORE)
+	$(SWIG) -ocaml $(SWIGOPT) $(INTERFACEPATH)
+	$(OCC) -g -c -ccopt -g -ccopt "$(INCLUDES)" $(ISRCS) $(SRCS)
+	$(OCC) -g -c $(INTERFACE:%.i=%.mli)
+	$(OCC) -g -c $(INTERFACE:%.i=%.ml)
+	test -z "$(PROGFILE)" || test -f "$(PROGFILE)" && \
+		$(OCC) $(OCAMLPP) -c $(PROGFILE)
+	$(NOLINK) || $(OCAMLMKTOP) \
+		swig.cmo \
+		-I $(OCAMLP4WHERE) camlp4o.cma swigp4.cmo \
+		-g -ccopt -g -cclib -g -custom -o $(TARGET)_top \
+		$(INTERFACE:%.i=%.cmo) \
+		$(INTERFACE:%.i=%_wrap.o) $(OBJS) -cclib "$(LIBS)"
+
+ocaml_dynamic: $(SRCS)
+	$(OCAMLCORE)
+	$(SWIG) -ocaml $(SWIGOPT) $(INTERFACEPATH)
+	$(OCC) -g -c -ccopt -g -ccopt "$(INCLUDES)" $(ISRCS) $(SRCS)
+	$(CXXSHARED) $(CFLAGS) $(CCSHARED) $(CFLAGS) -o $(INTERFACE:%.i=%.so) \
+		$(INTERFACE:%.i=%_wrap.o) $(OBJS) $(LIBS)
+	$(OCAMLDLGEN) $(INTERFACE:%.i=%.ml) $(INTERFACE:%.i=%.so) > \
+		$(INTERFACE:%.i=%_dynamic.ml)
+	mv $(INTERFACE:%.i=%_dynamic.ml) $(INTERFACE:%.i=%.ml)
+	rm $(INTERFACE:%.i=%.mli)
+	$(OCAMLFIND) $(OCC) -g -c -package dl $(INTERFACE:%.i=%.ml)
+	test -z "$(PROGFILE)" || test -f "$(PROGFILE)" && \
+		$(OCC) $(OCAMLPP) -c $(PROGFILE)
+	$(NOLINK) || $(OCAMLFIND) \
+		$(OCC) -g -ccopt -g -cclib -g -custom -o $(TARGET) \
+		swig.cmo \
+		-package dl -linkpkg \
+		$(INTERFACE:%.i=%.cmo) $(PROGFILE:%.ml=%.cmo)
+
+ocaml_lib_cpp: $(SRCS)
+	$(OCAMLCORE)
+	$(SWIG) -ocaml -c++ $(SWIGOPT) $(INTERFACEPATH)
+	cp $(ICXXSRCS) $(ICXXSRCS:%.cxx=%.c)
+	$(OCC) -cc '$(CXX) -Wno-write-strings' -g -c -ccopt -g -ccopt "-xc++ $(INCLUDES)" \
+		$(ICXXSRCS:%.cxx=%.c) $(SRCS) $(CXXSRCS)
+	$(CXXSHARED) $(CFLAGS) -o $(INTERFACE:%.i=%.so) \
+		$(INTERFACE:%.i=%_wrap.o) $(OBJS) \
+		$(CPP_DLLIBS) $(LIBS)
+	$(OCC) -g -c $(INTERFACE:%.i=%.mli)
+	$(OCC) -g -c $(INTERFACE:%.i=%.ml)
+	test -z "$(PROGFILE:%.ml=%.mli)" || test -f "$(PROGFILE:%.ml=%.mli)" && \
+		$(OCC) $(OCAMLPP) -c $(PROGFILE:%.ml=%.mli)
+	test -z "$(PROGFILE)" || test -f "$(PROGFILE)" && \
+		$(OCC) $(OCAMLPP) -c $(PROGFILE)
+	$(NOLINK) || $(OCC) -g -ccopt -g -cclib -g -a -custom -o $(TARGET).cma \
+		swig.cmo \
+		$(INTERFACE:%.i=%.cmo) \
+		$(PROGFILE:%.ml=%.cmo) \
+		$(INTERFACE:%.i=%_wrap.o) \
+		-dllib $(INTERFACE:%.i=%.so) -cc '$(CXX) -Wno-write-strings'
+
+ocaml_static_cpp: $(SRCS)
+	$(OCAMLCORE)
+	$(SWIG) -ocaml -c++ $(SWIGOPT) $(INTERFACEPATH)
+	cp $(ICXXSRCS) $(ICXXSRCS:%.cxx=%.c)
+	$(OCC) -cc '$(CXX) -Wno-write-strings' -g -c -ccopt -g -ccopt "-xc++ $(INCLUDES)" \
+		$(ICXXSRCS:%.cxx=%.c) $(SRCS) $(CXXSRCS)
+	$(OCC) -g -c $(INTERFACE:%.i=%.mli)
+	$(OCC) -g -c $(INTERFACE:%.i=%.ml)
+	test -z "$(PROGFILE)" || test -f "$(PROGFILE)" && \
+		$(OCC) $(OCAMLPP) -c $(PROGFILE)
+	$(NOLINK) || $(OCC) -g -ccopt -g -cclib -g -a -custom -o $(TARGET) \
+		swig.cmo \
+		$(INTERFACE:%.i=%.cmo) \
+		$(PROGFILE:%.ml=%.cmo) \
+		$(INTERFACE:%.i=%_wrap.o) $(OBJS) \
+		-cclib "$(LIBS)" -cc '$(CXX) -Wno-write-strings'
+
+ocaml_static_cpp_toplevel: $(SRCS)
+	$(OCAMLCORE)
+	$(SWIG) -ocaml -c++ $(SWIGOPT) $(INTERFACEPATH)
+	cp $(ICXXSRCS) $(ICXXSRCS:%.cxx=%.c)
+	$(OCC) -cc '$(CXX) -Wno-write-strings' -g -c -ccopt -g -ccopt "-xc++ $(INCLUDES)" \
+		$(ICXXSRCS:%.cxx=%.c) $(SRCS) $(CXXSRCS)
+	$(OCC) -g -c $(INTERFACE:%.i=%.mli)
+	$(OCC) -g -c $(INTERFACE:%.i=%.ml)
+	test -z "$(PROGFILE)" || test -f "$(PROGFILE)" && \
+		$(OCC) $(OCAMLPP) -c $(PROGFILE)
+	$(NOLINK) || $(OCAMLMKTOP) \
+		swig.cmo \
+		-I $(OCAMLP4WHERE) dynlink.cma camlp4o.cma swigp4.cmo \
+		-g -ccopt -g -cclib -g -custom -o $(TARGET)_top \
+		$(INTERFACE:%.i=%.cmo) \
+		$(INTERFACE:%.i=%_wrap.o) $(OBJS) \
+		-cclib "$(LIBS)" -cc '$(CXX) -Wno-write-strings'
+
+ocaml_dynamic_cpp: $(SRCS)
+	$(OCAMLCORE)
+	$(SWIG) -ocaml -c++ $(SWIGOPT) $(INTERFACEPATH)
+	cp $(ICXXSRCS) $(ICXXSRCS:%.cxx=%.c)
+	$(OCC) -cc '$(CXX) -Wno-write-strings' -g -c -ccopt -g -ccopt "-xc++ $(INCLUDES)" \
+		$(ICXXSRCS:%.cxx=%.c) $(SRCS) $(CXXSRCS) -ccopt -fPIC
+	$(CXXSHARED) $(CFLAGS) -o $(INTERFACE:%.i=%.so) \
+		$(INTERFACE:%.i=%_wrap.o) $(OBJS) \
+		$(CPP_DLLIBS) $(LIBS)
+	$(OCAMLDLGEN) $(INTERFACE:%.i=%.ml) $(INTERFACE:%.i=%.so) > \
+		$(INTERFACE:%.i=%_dynamic.ml)
+	mv $(INTERFACE:%.i=%_dynamic.ml) $(INTERFACE:%.i=%.ml)
+	rm $(INTERFACE:%.i=%.mli)
+	$(OCAMLFIND) $(OCC) -g -c -package dl $(INTERFACE:%.i=%.ml)
+	test -z "$(PROGFILE)" || test -f "$(PROGFILE)" && \
+		$(OCC) $(OCAMLPP) -c $(PROGFILE)
+	$(NOLINK) || $(OCAMLFIND) \
+		$(OCC) -cclib -export-dynamic -g -ccopt -g -cclib -g -custom \
+		-o $(TARGET) \
+		swig.cmo \
+		-package dl -linkpkg \
+		$(INTERFACE:%.i=%.cmo) $(PROGFILE:%.ml=%.cmo) -cc '$(CXX) -Wno-write-strings'
+
+ocaml_clean:
+	rm -f *_wrap* *~ .~* *.cmo *.cmi *.cma $(MLFILE) $(MLFILE)i swig.mli swig.cmi swig.ml swig.cmo swigp4.ml swigp4.cmo
+	rm -f core 
+	rm -f *.o *.so
+
