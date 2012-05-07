@@ -75,10 +75,10 @@ dynamic::
 	ocaml_dynamic_cpp
 
 install: all
-	ocamlfind install phonenumbers *.mli *.cmi *.cma META
+	ocamlfind install phonenumbers *.mli *.cmi *.cma *.so META
 
 uninstall:
-	ocamfind remove phonenumbers
+	ocamlfind remove phonenumbers
 
 clean::
 	$(MAKE) -f $(TOP)/OCamlMakefile MLFILE='$(MLFILE)' ocaml_clean
