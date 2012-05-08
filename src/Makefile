@@ -38,7 +38,7 @@ OBJS       = string_piece.o \
              unicodetext.o \
              unilib.o
 INCLUDES   = -I .
-LIBS       = /usr/lib/libprotobuf.so \
+LIBS       = $(SDROOT)/lib/libprotobuf.so \
              /usr/lib/libicuuc.so \
              /usr/lib/libicui18n.so \
              /usr/lib/libboost_date_time-mt.so \
