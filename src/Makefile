@@ -37,44 +37,17 @@ OBJS       = string_piece.o \
              rune.o \
              unicodetext.o \
              unilib.o
-INCLUDES   = -I .
-LIBS       = $(SDROOT)/lib/libprotobuf.so \
-             /usr/lib/libicuuc.so \
-             /usr/lib/libicui18n.so \
-             /usr/lib/libboost_date_time-mt.so \
-             /usr/lib/libboost_thread-mt.so
+INCLUDES   = -I. -I$(SDROOT)/include
+LIBS       = -L$(SDROOT)/lib
 
-all:: lib
-
-lib::
+all::
 	$(MAKE) -f $(TOP)/OCamlMakefile SRCS='$(SRCS)' SWIG='$(SWIG)' \
 	SWIGOPT='$(SWIGOPT)' TARGET='$(TARGET)' INTERFACE='$(INTERFACE)' \
 	MLFILE='$(MLFILE)' PROGFILE='$(PROGFILE)' OBJS='$(OBJS)' \
 	INCLUDES='$(INCLUDES)' LIBS='$(LIBS)' \
 	ocaml_lib
 
-static::
-	$(MAKE) -f $(TOP)/OCamlMakefile SRCS='$(SRCS)' SWIG='$(SWIG)' \
-	SWIGOPT='$(SWIGOPT)' TARGET='$(TARGET)' INTERFACE='$(INTERFACE)' \
-	MLFILE='$(MLFILE)' PROGFILE='$(PROGFILE)' OBJS='$(OBJS)' \
-	INCLUDES='$(INCLUDES)' LIBS='$(LIBS)' \
-	ocaml_static
-
-static_top::
-	$(MAKE) -f $(TOP)/OCamlMakefile SRCS='$(SRCS)' SWIG='$(SWIG)' \
-	SWIGOPT='$(SWIGOPT)' TARGET='$(TARGET)' INTERFACE='$(INTERFACE)' \
-	MLFILE='$(MLFILE)' PROGFILE='$(PROGFILE)' OBJS='$(OBJS)' \
-	INCLUDES='$(INCLUDES)' LIBS='$(LIBS)' \
-	ocaml_static_toplevel
-
-dynamic::
-	$(MAKE) -f $(TOP)/OCamlMakefile SRCS='$(SRCS)' SWIG='$(SWIG)' \
-	SWIGOPT='$(SWIGOPT)' TARGET='$(TARGET)' INTERFACE='$(INTERFACE)' \
-	MLFILE='$(MLFILE)' PROGFILE='$(PROGFILE)' OBJS='$(OBJS)' \
-	INCLUDES='$(INCLUDES)' LIBS='$(LIBS)' \
-	ocaml_dynamic
-
-install: all
+install:
 	ocamlfind install phonenumbers *.mli *.cmi *.cma *.a *.so META
 
 uninstall:
@@ -82,5 +55,3 @@ uninstall:
 
 clean::
 	$(MAKE) -f $(TOP)/OCamlMakefile MLFILE='$(MLFILE)' ocaml_clean
-
-check: all
