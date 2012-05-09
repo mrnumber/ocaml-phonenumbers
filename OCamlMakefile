@@ -86,19 +86,24 @@ ocaml_lib: $(SRCS)
 	$(OCAMLCORE)
 	$(SWIG) -ocaml $(SWIGOPT) $(INTERFACEPATH)
 	$(OCC) -g -c -ccopt -g -ccopt "$(INCLUDES)" $(ISRCS) $(SRCS)
-	$(CXXSHARED) $(CFLAGS) $(CCSHARED) $(CFLAGS) -o $(INTERFACE:%.i=%.so) \
-		$(INTERFACE:%.i=%_wrap.o) $(OBJS) $(LIBS)
 	$(OCC) -g -c $(INTERFACE:%.i=%.mli)
 	$(OCC) -g -c $(INTERFACE:%.i=%.ml)
 	test -z "$(PROGFILE:%.ml=%.mli)" || test -f "$(PROGFILE:%.ml=%.mli)" && \
 		$(OCC) $(OCAMLPP) -c $(PROGFILE:%.ml=%.mli)
 	test -z "$(PROGFILE)" || test -f "$(PROGFILE)" && \
 		$(OCC) $(OCAMLPP) -c $(PROGFILE)
-	$(NOLINK) || $(OCC) -g -ccopt -g -cclib -g -a -custom -o $(TARGET).cma \
+	$(NOLINK) || ocamlmklib -ccopt -g -cclib -g -custom -o $(TARGET) \
+		-lstdc++ \
+		-lprotobuf \
+		-licuuc \
+		-licui18n \
+		-lboost_date_time-mt \
+		-lboost_thread-mt \
 		swig.cmo \
 		$(INTERFACE:%.i=%.cmo) \
 		$(PROGFILE:%.ml=%.cmo) \
-		$(INTERFACE:%.i=%_wrap.o) -dllib $(INTERFACE:%.i=%.so)
+		$(INTERFACE:%.i=%_wrap.o) \
+		$(OBJS)
 
 ocaml_static: $(SRCS)
 	$(OCAMLCORE)
@@ -154,21 +159,24 @@ ocaml_lib_cpp: $(SRCS)
 	cp $(ICXXSRCS) $(ICXXSRCS:%.cxx=%.c)
 	$(OCC) -cc '$(CXX) -Wno-write-strings' -g -c -ccopt -g -ccopt "-xc++ $(INCLUDES)" \
 		$(ICXXSRCS:%.cxx=%.c) $(SRCS) $(CXXSRCS)
-	$(CXXSHARED) $(CFLAGS) -o $(INTERFACE:%.i=%.so) \
-		$(INTERFACE:%.i=%_wrap.o) $(OBJS) \
-		$(CPP_DLLIBS) $(LIBS)
 	$(OCC) -g -c $(INTERFACE:%.i=%.mli)
 	$(OCC) -g -c $(INTERFACE:%.i=%.ml)
 	test -z "$(PROGFILE:%.ml=%.mli)" || test -f "$(PROGFILE:%.ml=%.mli)" && \
 		$(OCC) $(OCAMLPP) -c $(PROGFILE:%.ml=%.mli)
 	test -z "$(PROGFILE)" || test -f "$(PROGFILE)" && \
 		$(OCC) $(OCAMLPP) -c $(PROGFILE)
-	$(NOLINK) || $(OCC) -g -ccopt -g -cclib -g -a -custom -o $(TARGET).cma \
+	$(NOLINK) || ocamlmklib -ccopt -g -cclib -g -custom -o $(TARGET) \
+		-lstdc++ \
+		-lprotobuf \
+		-licuuc \
+		-licui18n \
+		-lboost_date_time-mt \
+		-lboost_thread-mt \
 		swig.cmo \
 		$(INTERFACE:%.i=%.cmo) \
 		$(PROGFILE:%.ml=%.cmo) \
 		$(INTERFACE:%.i=%_wrap.o) \
-		-dllib $(INTERFACE:%.i=%.so) -cc '$(CXX) -Wno-write-strings'
+		$(OBJS)
 
 ocaml_static_cpp: $(SRCS)
 	$(OCAMLCORE)

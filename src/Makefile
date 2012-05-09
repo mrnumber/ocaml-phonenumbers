@@ -75,7 +75,7 @@ dynamic::
 	ocaml_dynamic_cpp
 
 install: all
-	ocamlfind install phonenumbers *.mli *.cmi *.cma *.so META
+	ocamlfind install phonenumbers *.mli *.cmi *.cma *.a META
 
 uninstall:
 	ocamlfind remove phonenumbers

@@ -118,7 +118,7 @@ let phone_util = _PhoneNumberUtilSingleton_GetInstance '()
 
 let new_phone_number () = _new_PhoneNumber '()
 
-let delete_phone_number number = _delete_PhoneNumber number
+let delete_phone_number number = ignore (_delete_PhoneNumber number)
 
 let is_alpha_number number =
   get_bool (phone_util -> _IsAlphaNumber((make_string number)))
@@ -172,7 +172,7 @@ let is_valid_number_for_region number region_code =
   get_bool (phone_util -> _IsValidNumberForRegion(number, (make_string region_code)))
 
 let get_region_code_for_number number =
-  get_string (phone_util -> _GetRegionCodeForNumber(number))
+  get_string (phone_util -> GetRegionCodeForNumber(number))
 
 let get_country_code_for_region region_code =
   get_int (phone_util -> _GetCountryCodeForRegion(region_code))

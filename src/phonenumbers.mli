@@ -71,7 +71,7 @@ type validation_result =
   | TOO_LONG
 
 val new_phone_number : unit -> c_obj
-val delete_phone_number : c_obj -> c_obj
+val delete_phone_number : c_obj -> unit
 
 (* Returns true if the number is a valid vanity (alpha) number such as 800
    MICROSOFT. A valid vanity number will start with at least 3 digits and will
@@ -115,7 +115,7 @@ val get_length_of_national_destination_code : 'a -> int
    INTERNATIONAL format depending on what the client asks for, we do not
    currently support a more abbreviated format, such as for users in the
    same area who could potentially dial the number without area code. *)
-val format : 'a c_obj_t -> phone_number_format -> string
+val format : c_obj -> phone_number_format -> string
 
 (* Formats a phone number in national format for dialing using the carrier as
    specified in the carrier_code. The carrier_code will always be used
@@ -123,7 +123,7 @@ val format : 'a c_obj_t -> phone_number_format -> string
    carrier code stored. If carrier_code contains an empty string, return the
    number in national format without any carrier code. *)
 val format_national_number_with_carrier_code :
-  'a c_obj_t -> string -> string
+  c_obj -> string -> string
 
 (* Formats a phone number in national format for dialing using the carrier as
    specified in the preferred_domestic_carrier_code field of the PhoneNumber
@@ -132,13 +132,13 @@ val format_national_number_with_carrier_code :
    fallback_carrier_code contains an empty string, return the number in
    national format without any carrier code. *)
 val format_national_number_with_preferred_carrier_code :
-  'a c_obj_t -> string -> string
+  c_obj -> string -> string
 
 (* Returns a number formatted in such a way that it can be dialed from a
    mobile phone in a specific region. If the number cannot be reached from
    the region (e.g. some countries block toll-free numbers from being called
    outside of the country), the method returns an empty string. *)
-val format_number_for_mobile_dialing : 'a c_obj_t -> string -> string
+val format_number_for_mobile_dialing : c_obj -> string -> string
 
 (* Formats a phone number for out-of-country dialing purposes.
    Note this function takes care of the case for calling inside of NANPA
@@ -147,7 +147,7 @@ val format_number_for_mobile_dialing : 'a c_obj_t -> string -> string
    have multiple international prefixes, the number in its INTERNATIONAL
    format will be returned instead. *)
 val format_out_of_country_calling_number :
-  'a c_obj_t -> string -> string
+  c_obj -> string -> string
 
 (* Formats a phone number using the original phone number format that the
    number is parsed from. The original format is embedded in the
@@ -155,7 +155,7 @@ val format_out_of_country_calling_number :
    information is missing, the number will be formatted into the NATIONAL
    format by default. When the number is an invalid number, the method returns
    the raw input when it is available. *)
-val format_in_original_format : 'a c_obj_t -> string -> string
+val format_in_original_format : c_obj -> string -> string
 
 (* Formats a phone number for out-of-country dialing purposes.
    Note that in this version, if the number was entered originally using alpha
@@ -164,7 +164,7 @@ val format_in_original_format : 'a c_obj_t -> string -> string
    representation. Grouping information, as specified by characters such as
    "-" and " ", will be retained. *)
 val format_out_of_country_keeping_alpha_chars :
-  'a c_obj_t -> string -> string
+  c_obj -> string -> string
 
 (* Attempts to extract a valid number from a phone number that is too long to
    be valid, and resets the PhoneNumber object passed in to that valid
@@ -189,7 +189,7 @@ val is_valid_number : 'a -> bool
    are examined.
    This is useful for determining for example whether a particular number is
    valid for Canada, rather than just a valid NANPA number. *)
-val is_valid_number_for_region : 'a c_obj_t -> string -> bool
+val is_valid_number_for_region : c_obj -> string -> bool
 
 (* Returns the region where a phone number is from. This could be used for
    geo-coding at the region level. *)
@@ -256,13 +256,13 @@ val is_possible_number : 'a -> bool
    as 253 0000, it could only be dialed from within a smaller area in the US
    (Mountain View, CA, to be more specific). *)
 val is_possible_number_for_string :
-  'a c_obj_t -> 'a c_obj_t -> bool
+  c_obj -> c_obj -> bool
 
 (* Gets a valid fixed-line number for the specified region. Returns false if
    the region was unknown, or the region 001 is passed in. For 001
    (representing non-geographical numbers), call
    GetExampleNumberForNonGeoEntity instead. *)
-val get_example_number : string -> 'a c_obj_t -> bool
+val get_example_number : string -> c_obj -> bool
 
 (* Gets a valid number of the specified type for the specified region.
    Returns false if the region was unknown or 001, or if no example number of
@@ -274,7 +274,7 @@ val get_example_number_for_type : string -> phone_number_type -> 'a -> bool
    non-geographical entity. Returns false if the metadata does not contain
    such information, or the country calling code passed in does not belong to
    a non-geographical entity. *)
-val get_example_number_for_non_geo_entity : int -> 'a c_obj_t -> bool
+val get_example_number_for_non_geo_entity : int -> c_obj -> bool
 
 (* Parses a string and returns it in proto buffer format. This method will
    return an error like INVALID_COUNTRY_CODE if the number is not considered
@@ -288,14 +288,14 @@ val get_example_number_for_non_geo_entity : int -> 'a c_obj_t -> bool
    stored as that of the default country supplied. If the number is guaranteed
    to start with a '+' followed by the country calling code, then
    "ZZ" can be supplied. *)
-val parse : string -> string -> 'a c_obj_t -> error_type
+val parse : string -> string -> c_obj -> error_type
 
 (* Parses a string and returns it in proto buffer format. This method differs
    from Parse() in that it always populates the raw_input field of the
    protocol buffer with number_to_parse as well as the country_code_source
    field. *)
 val parse_and_keep_raw_input :
-  string -> string -> 'a c_obj_t -> error_type
+  string -> string -> c_obj -> error_type
 
 (* Takes two phone numbers and compares them for equality.
    Returns EXACT_MATCH if the country calling code, NSN, presence of a leading
@@ -309,7 +309,7 @@ val parse_and_keep_raw_input :
    Returns NO_MATCH otherwise.
    For example, the numbers +1 345 657 1234 and 657 1234 are a
    SHORT_NSN_MATCH. The numbers +1 345 657 1234 and 345 657 are a NO_MATCH. *)
-val is_number_match : 'a c_obj_t -> 'a c_obj_t -> match_type
+val is_number_match : c_obj -> c_obj -> match_type
 
 (* Takes two phone numbers as strings and compares them for equality. This
    is a convenience wrapper for IsNumberMatch(PhoneNumber firstNumber,
@@ -323,4 +323,4 @@ val is_number_match_with_two_strings : string -> string -> match_type
    PhoneNumber secondNumber). No default region is known.
    Returns INVALID_NUMBER if second_number cannot be parsed into a phone
    number. *)
-val is_number_match_with_one_string : 'a c_obj_t -> string -> match_type
+val is_number_match_with_one_string : c_obj -> string -> match_type
