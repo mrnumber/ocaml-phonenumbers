@@ -68,6 +68,7 @@ OBJS      = $(SRCS:.c=.o) $(CXXSRCS:.cxx=.o)
 OCC=ocamlc
 OCAMLDLGEN=ocamldlgen
 OCAMLFIND=ocamlfind
+OCAMLMKLIB=ocamlmklib
 OCAMLMKTOP=ocamlmktop $(SWIGWHERE)
 NOLINK ?= false
 OCAMLPP= -pp "camlp4o ./swigp4.cmo"
@@ -84,77 +85,6 @@ OCAMLCORE=\
 
 ocaml_lib: $(SRCS)
 	$(OCAMLCORE)
-	$(SWIG) -ocaml $(SWIGOPT) $(INTERFACEPATH)
-	$(OCC) -g -c -ccopt -g -ccopt "$(INCLUDES)" $(ISRCS) $(SRCS)
-	$(OCC) -g -c $(INTERFACE:%.i=%.mli)
-	$(OCC) -g -c $(INTERFACE:%.i=%.ml)
-	test -z "$(PROGFILE:%.ml=%.mli)" || test -f "$(PROGFILE:%.ml=%.mli)" && \
-		$(OCC) $(OCAMLPP) -c $(PROGFILE:%.ml=%.mli)
-	test -z "$(PROGFILE)" || test -f "$(PROGFILE)" && \
-		$(OCC) $(OCAMLPP) -c $(PROGFILE)
-	$(NOLINK) || ocamlmklib -ccopt -g -cclib -g -custom -o $(TARGET) \
-		-lstdc++ \
-		-lprotobuf \
-		-licuuc \
-		-licui18n \
-		-lboost_date_time-mt \
-		-lboost_thread-mt \
-		swig.cmo \
-		$(INTERFACE:%.i=%.cmo) \
-		$(PROGFILE:%.ml=%.cmo) \
-		$(INTERFACE:%.i=%_wrap.o) \
-		$(OBJS)
-
-ocaml_static: $(SRCS)
-	$(OCAMLCORE)
-	$(SWIG) -ocaml $(SWIGOPT) $(INTERFACEPATH)
-	$(OCC) -g -c -ccopt -g -ccopt "$(INCLUDES)" $(ISRCS) $(SRCS)
-	$(OCC) -g -c $(INTERFACE:%.i=%.mli)
-	$(OCC) -g -c $(INTERFACE:%.i=%.ml)
-	test -z "$(PROGFILE)" || test -f "$(PROGFILE)" && \
-		$(OCC) $(OCAMLPP) -c $(PROGFILE)
-	$(NOLINK) || $(OCC) -g -ccopt -g -cclib -g -custom -o $(TARGET) \
-		swig.cmo \
-		$(INTERFACE:%.i=%.cmo) \
-		$(PROGFILE:%.ml=%.cmo) \
-		$(INTERFACE:%.i=%_wrap.o) $(OBJS) -cclib "$(LIBS)"
-
-ocaml_static_toplevel: $(SRCS)
-	$(OCAMLCORE)
-	$(SWIG) -ocaml $(SWIGOPT) $(INTERFACEPATH)
-	$(OCC) -g -c -ccopt -g -ccopt "$(INCLUDES)" $(ISRCS) $(SRCS)
-	$(OCC) -g -c $(INTERFACE:%.i=%.mli)
-	$(OCC) -g -c $(INTERFACE:%.i=%.ml)
-	test -z "$(PROGFILE)" || test -f "$(PROGFILE)" && \
-		$(OCC) $(OCAMLPP) -c $(PROGFILE)
-	$(NOLINK) || $(OCAMLMKTOP) \
-		swig.cmo \
-		-I $(OCAMLP4WHERE) camlp4o.cma swigp4.cmo \
-		-g -ccopt -g -cclib -g -custom -o $(TARGET)_top \
-		$(INTERFACE:%.i=%.cmo) \
-		$(INTERFACE:%.i=%_wrap.o) $(OBJS) -cclib "$(LIBS)"
-
-ocaml_dynamic: $(SRCS)
-	$(OCAMLCORE)
-	$(SWIG) -ocaml $(SWIGOPT) $(INTERFACEPATH)
-	$(OCC) -g -c -ccopt -g -ccopt "$(INCLUDES)" $(ISRCS) $(SRCS)
-	$(CXXSHARED) $(CFLAGS) $(CCSHARED) $(CFLAGS) -o $(INTERFACE:%.i=%.so) \
-		$(INTERFACE:%.i=%_wrap.o) $(OBJS) $(LIBS)
-	$(OCAMLDLGEN) $(INTERFACE:%.i=%.ml) $(INTERFACE:%.i=%.so) > \
-		$(INTERFACE:%.i=%_dynamic.ml)
-	mv $(INTERFACE:%.i=%_dynamic.ml) $(INTERFACE:%.i=%.ml)
-	rm $(INTERFACE:%.i=%.mli)
-	$(OCAMLFIND) $(OCC) -g -c -package dl $(INTERFACE:%.i=%.ml)
-	test -z "$(PROGFILE)" || test -f "$(PROGFILE)" && \
-		$(OCC) $(OCAMLPP) -c $(PROGFILE)
-	$(NOLINK) || $(OCAMLFIND) \
-		$(OCC) -g -ccopt -g -cclib -g -custom -o $(TARGET) \
-		swig.cmo \
-		-package dl -linkpkg \
-		$(INTERFACE:%.i=%.cmo) $(PROGFILE:%.ml=%.cmo)
-
-ocaml_lib_cpp: $(SRCS)
-	$(OCAMLCORE)
 	$(SWIG) -ocaml -c++ $(SWIGOPT) $(INTERFACEPATH)
 	cp $(ICXXSRCS) $(ICXXSRCS:%.cxx=%.c)
 	$(OCC) -cc '$(CXX) -Wno-write-strings' -g -c -ccopt -g -ccopt "-xc++ $(INCLUDES)" \
@@ -165,7 +95,7 @@ ocaml_lib_cpp: $(SRCS)
 		$(OCC) $(OCAMLPP) -c $(PROGFILE:%.ml=%.mli)
 	test -z "$(PROGFILE)" || test -f "$(PROGFILE)" && \
 		$(OCC) $(OCAMLPP) -c $(PROGFILE)
-	$(NOLINK) || ocamlmklib -ccopt -g -cclib -g -custom -o $(TARGET) \
+	$(NOLINK) || $(OCAMLMKLIB) -ccopt -g -cclib -g -o $(TARGET) \
 		-lstdc++ \
 		-lprotobuf \
 		-licuuc \
@@ -175,10 +105,9 @@ ocaml_lib_cpp: $(SRCS)
 		swig.cmo \
 		$(INTERFACE:%.i=%.cmo) \
 		$(PROGFILE:%.ml=%.cmo) \
-		$(INTERFACE:%.i=%_wrap.o) \
-		$(OBJS)
+		$(INTERFACE:%.i=%_wrap.o) $(OBJS)
 
-ocaml_static_cpp: $(SRCS)
+ocaml_static: $(SRCS)
 	$(OCAMLCORE)
 	$(SWIG) -ocaml -c++ $(SWIGOPT) $(INTERFACEPATH)
 	cp $(ICXXSRCS) $(ICXXSRCS:%.cxx=%.c)
@@ -195,7 +124,7 @@ ocaml_static_cpp: $(SRCS)
 		$(INTERFACE:%.i=%_wrap.o) $(OBJS) \
 		-cclib "$(LIBS)" -cc '$(CXX) -Wno-write-strings'
 
-ocaml_static_cpp_toplevel: $(SRCS)
+ocaml_static_toplevel: $(SRCS)
 	$(OCAMLCORE)
 	$(SWIG) -ocaml -c++ $(SWIGOPT) $(INTERFACEPATH)
 	cp $(ICXXSRCS) $(ICXXSRCS:%.cxx=%.c)
@@ -213,7 +142,7 @@ ocaml_static_cpp_toplevel: $(SRCS)
 		$(INTERFACE:%.i=%_wrap.o) $(OBJS) \
 		-cclib "$(LIBS)" -cc '$(CXX) -Wno-write-strings'
 
-ocaml_dynamic_cpp: $(SRCS)
+ocaml_dynamic: $(SRCS)
 	$(OCAMLCORE)
 	$(SWIG) -ocaml -c++ $(SWIGOPT) $(INTERFACEPATH)
 	cp $(ICXXSRCS) $(ICXXSRCS:%.cxx=%.c)

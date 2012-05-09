@@ -92,14 +92,14 @@ val normalize_digits_only : string -> string
 
 (* Gets the national significant number of a phone number. Note a national
    significant number doesn't contain a national prefix or any formatting. *)
-val get_national_significant_number : 'a -> string
+val get_national_significant_number : c_obj -> string
 
 (* Gets the length of the geographical area code from the PhoneNumber object
    passed in, so that clients could use it to split a national significant
    number into geographical area code and subscriber number. It works in such
    a way that the resultant subscriber number should be diallable, at least on
    some devices. *)
-val get_length_of_geographical_area_code : 'a -> int
+val get_length_of_geographical_area_code : c_obj -> int
 
 (* Gets the length of the national destination code (NDC) from the PhoneNumber
    object passed in, so that clients could use it to split a national
@@ -107,7 +107,7 @@ val get_length_of_geographical_area_code : 'a -> int
    number is normally the first group of digit(s) right after the country
    calling code when the number is formatted in the international format, if
    there is a subscriber number part that follows. *)
-val get_length_of_national_destination_code : 'a -> int
+val get_length_of_national_destination_code : c_obj -> int
 
 (* Formats a phone number in the specified format using default rules. Note
    that this does not promise to produce a phone number that the user can

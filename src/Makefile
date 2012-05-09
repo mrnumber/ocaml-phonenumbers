@@ -51,31 +51,31 @@ lib::
 	SWIGOPT='$(SWIGOPT)' TARGET='$(TARGET)' INTERFACE='$(INTERFACE)' \
 	MLFILE='$(MLFILE)' PROGFILE='$(PROGFILE)' OBJS='$(OBJS)' \
 	INCLUDES='$(INCLUDES)' LIBS='$(LIBS)' \
-	ocaml_lib_cpp
+	ocaml_lib
 
 static::
 	$(MAKE) -f $(TOP)/OCamlMakefile SRCS='$(SRCS)' SWIG='$(SWIG)' \
 	SWIGOPT='$(SWIGOPT)' TARGET='$(TARGET)' INTERFACE='$(INTERFACE)' \
 	MLFILE='$(MLFILE)' PROGFILE='$(PROGFILE)' OBJS='$(OBJS)' \
 	INCLUDES='$(INCLUDES)' LIBS='$(LIBS)' \
-	ocaml_static_cpp
+	ocaml_static
 
 static_top::
 	$(MAKE) -f $(TOP)/OCamlMakefile SRCS='$(SRCS)' SWIG='$(SWIG)' \
 	SWIGOPT='$(SWIGOPT)' TARGET='$(TARGET)' INTERFACE='$(INTERFACE)' \
 	MLFILE='$(MLFILE)' PROGFILE='$(PROGFILE)' OBJS='$(OBJS)' \
 	INCLUDES='$(INCLUDES)' LIBS='$(LIBS)' \
-	ocaml_static_cpp_toplevel
+	ocaml_static_toplevel
 
 dynamic::
 	$(MAKE) -f $(TOP)/OCamlMakefile SRCS='$(SRCS)' SWIG='$(SWIG)' \
 	SWIGOPT='$(SWIGOPT)' TARGET='$(TARGET)' INTERFACE='$(INTERFACE)' \
 	MLFILE='$(MLFILE)' PROGFILE='$(PROGFILE)' OBJS='$(OBJS)' \
 	INCLUDES='$(INCLUDES)' LIBS='$(LIBS)' \
-	ocaml_dynamic_cpp
+	ocaml_dynamic
 
 install: all
-	ocamlfind install phonenumbers *.mli *.cmi *.cma *.a META
+	ocamlfind install phonenumbers *.mli *.cmi *.cma *.a *.so META
 
 uninstall:
 	ocamlfind remove phonenumbers
