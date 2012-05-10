@@ -1,6 +1,29 @@
 open Swig
 open Phonenumberutil
 
+type country_code_source =
+    FROM_NUMBER_WITH_PLUS_SIGN
+  | FROM_NUMBER_WITH_IDD
+  | FROM_NUMBER_WITHOUT_PLUS_SIGN
+  | FROM_DEFAULT_COUNTRY
+
+let make_country_code_source country_code_source =
+  make_int (get_int (enum_to_int `PhoneNumber_CountryCodeSource
+    (C_enum (match country_code_source with
+        FROM_NUMBER_WITH_PLUS_SIGN -> `PhoneNumber_CountryCodeSource_FROM_NUMBER_WITH_PLUS_SIGN
+      | FROM_NUMBER_WITH_IDD -> `PhoneNumber_CountryCodeSource_FROM_NUMBER_WITH_IDD
+      | FROM_NUMBER_WITHOUT_PLUS_SIGN -> `PhoneNumber_CountryCodeSource_FROM_NUMBER_WITHOUT_PLUS_SIGN
+      | FROM_DEFAULT_COUNTRY -> `PhoneNumber_CountryCodeSource_FROM_DEFAULT_COUNTRY))))
+
+let get_country_code_source obj = match obj with
+    C_enum country_code_source -> (match country_code_source with
+        `PhoneNumber_CountryCodeSource_FROM_NUMBER_WITH_PLUS_SIGN -> FROM_NUMBER_WITH_PLUS_SIGN
+      | `PhoneNumber_CountryCodeSource_FROM_NUMBER_WITH_IDD -> FROM_NUMBER_WITH_IDD
+      | `PhoneNumber_CountryCodeSource_FROM_NUMBER_WITHOUT_PLUS_SIGN -> FROM_NUMBER_WITHOUT_PLUS_SIGN
+      | `PhoneNumber_CountryCodeSource_FROM_DEFAULT_COUNTRY -> FROM_DEFAULT_COUNTRY
+      | _ -> raise (LabelNotFromThisEnum obj))
+    | _ -> raise (NotEnumType obj)
+
 type phone_number_format =
     E164
   | INTERNATIONAL
@@ -46,7 +69,7 @@ let make_phone_number_type phone_number_type =
       | UNKNOWN -> `UNKNOWN))))
 
 let get_phone_number_type obj = match obj with
-    (C_enum phone_number_type) -> (match phone_number_type with
+    C_enum phone_number_type -> (match phone_number_type with
         `FIXED_LINE -> FIXED_LINE
       | `MOBILE -> MOBILE
       | `FIXED_LINE_OR_MOBILE -> FIXED_LINE_OR_MOBILE
@@ -70,7 +93,7 @@ type match_type =
   | EXACT_MATCH
 
 let get_match_type obj = match obj with
-  (C_enum match_type) -> (match match_type with
+  C_enum match_type -> (match match_type with
       `INVALID_NUMBER -> INVALID_NUMBER
     | `NO_MATCH -> NO_MATCH
     | `SHORT_NSN_MATCH -> SHORT_NSN_MATCH
@@ -88,7 +111,7 @@ type error_type =
   | TOO_LONG_NSN
 
 let get_error_type obj = match obj with
-  (C_enum error_type) -> (match error_type with
+  C_enum error_type -> (match error_type with
       `NO_PARSING_ERROR -> NO_PARSING_ERROR
     | `INVALID_COUNTRY_CODE_ERROR -> INVALID_COUNTRY_CODE_ERROR
     | `NOT_A_NUMBER -> NOT_A_NUMBER
@@ -105,7 +128,7 @@ type validation_result =
   | TOO_LONG
 
 let get_validation_result obj = match obj with
-  (C_enum validation_result) -> (match validation_result with
+  C_enum validation_result -> (match validation_result with
       `IS_POSSIBLE -> IS_POSSIBLE
     | `INVALID_COUNTRY_CODE -> INVALID_COUNTRY_CODE
     | `TOO_SHORT -> TOO_SHORT
@@ -113,12 +136,70 @@ let get_validation_result obj = match obj with
     | _ -> raise (LabelNotFromThisEnum obj))
   | _ -> raise (NotEnumType obj)
 
+let make_int64 obj = C_int64 obj
+
+let get_int64 obj = match obj with C_int64 u -> u
+  | _ -> raise (Failure "Can't convert to int64")
 
 let phone_util = _PhoneNumberUtilSingleton_GetInstance '()
 
 let new_phone_number () = _new_PhoneNumber '()
 
-let delete_phone_number number = ignore (_delete_PhoneNumber number)
+let has_country_code number = get_bool (number -> has_country_code())
+
+let clear_country_code number = ignore (number -> clear_country_code())
+
+let country_code number = get_int (number -> country_code())
+
+let set_country_code number country_code = ignore (number -> set_country_code((make_int country_code)))
+
+let has_national_number number = get_bool (number -> has_national_number())
+
+let clear_national_number number = ignore (number -> clear_national_number())
+
+let national_number number = get_int64 (number -> national_number())
+
+let set_national_number number national_number = ignore (number -> set_national_number((make_int64 national_number)))
+
+let has_extension number = get_bool (number -> has_extension())
+
+let clear_extension number = ignore (number -> clear_extension())
+
+let extension number = get_string (number -> _extension())
+
+let set_extension number extension = ignore (number -> set_extension((make_string extension)))
+
+let has_italian_leading_zero number = get_bool (number -> has_italian_leading_zero())
+
+let clear_italian_leading_zero number = ignore (number -> clear_italian_leading_zero())
+
+let italian_leading_zero number = get_bool (number -> italian_leading_zero())
+
+let set_italian_leading_zero number italian_leading_zero = ignore (number -> set_italian_leading_zero((make_bool italian_leading_zero)))
+
+let has_raw_input number = get_bool (number -> has_raw_input())
+
+let clear_raw_input number = ignore (number -> clear_raw_input())
+
+let raw_input number = get_string (number -> _raw_input())
+
+let set_raw_input number raw_input = ignore (number -> set_raw_input((make_string raw_input)))
+
+let has_country_code_source number = get_bool (number -> has_country_code_source())
+
+let clear_country_code_source number = ignore (number -> clear_country_code_source())
+
+let country_code_source number = get_country_code_source (number -> _country_code_source())
+
+let set_country_code_source number country_code_source = ignore (number -> set_country_code_source((make_country_code_source country_code_source)))
+
+let has_preferred_domestic_carrier_code number = get_bool (number -> has_preferred_domestic_carrier_code())
+
+let clear_preferred_domestic_carrier_code number = ignore (number -> clear_preferred_domestic_carrier_code())
+
+let preferred_domestic_carrier_code number = get_string (number -> _preferred_domestic_carrier_code())
+
+let set_preferred_domestic_carrier_code number preferred_domestic_carrier_code = ignore (number -> set_preferred_domestic_carrier_code((make_string preferred_domestic_carrier_code)))
 
 let is_alpha_number number =
   get_bool (phone_util -> _IsAlphaNumber((make_string number)))
