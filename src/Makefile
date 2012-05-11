@@ -47,8 +47,15 @@ all::
 	INCLUDES='$(INCLUDES)' LIBS='$(LIBS)' \
 	ocaml_lib
 
+opt::
+	$(MAKE) -f $(TOP)/OCamlMakefile SRCS='$(SRCS)' SWIG='$(SWIG)' \
+	SWIGOPT='$(SWIGOPT)' TARGET='$(TARGET)' INTERFACE='$(INTERFACE)' \
+	MLFILE='$(MLFILE)' PROGFILE='$(PROGFILE)' OBJS='$(OBJS)' \
+	INCLUDES='$(INCLUDES)' LIBS='$(LIBS)' OCC=ocamlopt \
+	ocaml_lib_opt
+
 install:
-	ocamlfind install phonenumbers *.mli *.cmi *.cma *.a *.so META
+	ocamlfind install phonenumbers *.mli *.cmi *.cma *.cmxa *.a *.so META
 
 uninstall:
 	ocamlfind remove phonenumbers

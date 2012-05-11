@@ -1,6 +1,6 @@
 .PHONY: all
 all:
-	@cd src && $(MAKE) all
+	@cd src && $(MAKE) all opt
 
 .PHONY:	install
 install:
@@ -13,4 +13,3 @@ uninstall:
 .PHONY:	clean
 clean:
 	@cd src && $(MAKE) clean
-
