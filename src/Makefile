@@ -38,7 +38,7 @@ OBJS       = string_piece.o \
              unicodetext.o \
              unilib.o
 INCLUDES   = -I. -I$(SDROOT)/include
-LIBS       = -L$(SDROOT)/lib
+LIBS       = -L. -L$(SDROOT)/lib
 
 all::
 	$(MAKE) -f $(TOP)/OCamlMakefile SRCS='$(SRCS)' SWIG='$(SWIG)' \
@@ -47,7 +47,7 @@ all::
 	INCLUDES='$(INCLUDES)' LIBS='$(LIBS)' \
 	ocaml_lib
 
-opt::
+opt:: all
 	$(MAKE) -f $(TOP)/OCamlMakefile SRCS='$(SRCS)' SWIG='$(SWIG)' \
 	SWIGOPT='$(SWIGOPT)' TARGET='$(TARGET)' INTERFACE='$(INTERFACE)' \
 	MLFILE='$(MLFILE)' PROGFILE='$(PROGFILE)' OBJS='$(OBJS)' \

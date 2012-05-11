@@ -1,16 +1,6 @@
 open Swig
 open Phonenumberutil
 
-(* NOTE: A lot of methods in this class require Region Code strings. These must
-   be provided using ISO 3166-1 two-letter country-code format. The list of the
-   codes can be found here:
-   http://www.iso.org/iso/english_country_names_and_code_elements *)
-type country_code_source =
-    FROM_NUMBER_WITH_PLUS_SIGN
-  | FROM_NUMBER_WITH_IDD
-  | FROM_NUMBER_WITHOUT_PLUS_SIGN
-  | FROM_DEFAULT_COUNTRY
-
 (* INTERNATIONAL and NATIONAL formats are consistent with the definition
    in ITU-T Recommendation E. 123. For example, the number of the Google
    Zürich office will be written as "+41 44 668 1800" in INTERNATIONAL
@@ -82,40 +72,14 @@ type validation_result =
 
 val new_phone_number : unit -> c_obj
 
-val has_country_code : c_obj -> bool
-val clear_country_code : c_obj -> unit
-val country_code : c_obj -> int
-val set_country_code : c_obj -> int -> unit
+type t = {
+  country_code: int option;
+  national_number: int64 option;
+}
 
-val has_national_number : c_obj -> bool
-val clear_national_number : c_obj -> unit
-val national_number : c_obj -> int64
-val set_national_number : c_obj -> int64 -> unit
+val from_phone_number: c_obj -> t
 
-val has_extension : c_obj -> bool
-val clear_extension : c_obj -> unit
-val extension : c_obj -> string
-val set_extension : c_obj -> string -> unit
-
-val has_italian_leading_zero : c_obj -> bool
-val clear_italian_leading_zero : c_obj -> unit
-val italian_leading_zero : c_obj -> bool
-val set_italian_leading_zero : c_obj -> bool -> unit
-
-val has_raw_input : c_obj -> bool
-val clear_raw_input : c_obj -> unit
-val raw_input : c_obj -> string
-val set_raw_input : c_obj -> string -> unit
-
-val has_country_code_source : c_obj -> bool
-val clear_country_code_source : c_obj ->unit
-val country_code_source : c_obj -> country_code_source
-val set_country_code_source : c_obj -> country_code_source -> unit
-
-val has_preferred_domestic_carrier_code : c_obj -> bool
-val clear_preferred_domestic_carrier_code : c_obj ->unit
-val preferred_domestic_carrier_code : c_obj -> string
-val set_preferred_domestic_carrier_code : c_obj -> string -> unit
+val to_phone_number: t -> c_obj
 
 (* Returns true if the number is a valid vanity (alpha) number such as 800
    MICROSOFT. A valid vanity number will start with at least 3 digits and will

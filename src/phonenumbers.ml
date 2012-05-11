@@ -145,61 +145,112 @@ let phone_util = _PhoneNumberUtilSingleton_GetInstance '()
 
 let new_phone_number () = _new_PhoneNumber '()
 
-let has_country_code number = get_bool (number -> has_country_code())
+let has_country_code number =
+  get_bool (number -> has_country_code())
 
-let clear_country_code number = ignore (number -> clear_country_code())
+let clear_country_code number =
+  ignore (number -> clear_country_code())
 
-let country_code number = get_int (number -> country_code())
+let country_code number =
+  get_int (number -> country_code())
 
-let set_country_code number country_code = ignore (number -> set_country_code((make_int country_code)))
+let set_country_code number country_code =
+  ignore (number -> set_country_code((make_int country_code)))
 
-let has_national_number number = get_bool (number -> has_national_number())
+let has_national_number number =
+  get_bool (number -> has_national_number())
 
-let clear_national_number number = ignore (number -> clear_national_number())
+let clear_national_number number =
+  ignore (number -> clear_national_number())
 
-let national_number number = get_int64 (number -> national_number())
+let national_number number =
+  get_int64 (number -> national_number())
 
-let set_national_number number national_number = ignore (number -> set_national_number((make_int64 national_number)))
+let set_national_number number national_number =
+  ignore (number -> set_national_number((make_int64 national_number)))
 
-let has_extension number = get_bool (number -> has_extension())
+let has_extension number =
+  get_bool (number -> has_extension())
 
-let clear_extension number = ignore (number -> clear_extension())
+let clear_extension number =
+  ignore (number -> clear_extension())
 
-let extension number = get_string (number -> _extension())
+let extension number =
+  get_string (number -> _extension())
 
-let set_extension number extension = ignore (number -> set_extension((make_string extension)))
+let set_extension number extension =
+  ignore (number -> set_extension((make_string extension)))
 
-let has_italian_leading_zero number = get_bool (number -> has_italian_leading_zero())
+let has_italian_leading_zero number =
+  get_bool (number -> has_italian_leading_zero())
 
-let clear_italian_leading_zero number = ignore (number -> clear_italian_leading_zero())
+let clear_italian_leading_zero number =
+  ignore (number -> clear_italian_leading_zero())
 
-let italian_leading_zero number = get_bool (number -> italian_leading_zero())
+let italian_leading_zero number =
+  get_bool (number -> italian_leading_zero())
 
-let set_italian_leading_zero number italian_leading_zero = ignore (number -> set_italian_leading_zero((make_bool italian_leading_zero)))
+let set_italian_leading_zero number italian_leading_zero =
+  ignore (number -> set_italian_leading_zero((make_bool italian_leading_zero)))
 
-let has_raw_input number = get_bool (number -> has_raw_input())
+let has_raw_input number =
+  get_bool (number -> has_raw_input())
 
-let clear_raw_input number = ignore (number -> clear_raw_input())
+let clear_raw_input number =
+  ignore (number -> clear_raw_input())
 
-let raw_input number = get_string (number -> _raw_input())
+let raw_input number =
+  get_string (number -> _raw_input())
 
-let set_raw_input number raw_input = ignore (number -> set_raw_input((make_string raw_input)))
+let set_raw_input number raw_input =
+  ignore (number -> set_raw_input((make_string raw_input)))
 
-let has_country_code_source number = get_bool (number -> has_country_code_source())
+let has_country_code_source number =
+  get_bool (number -> has_country_code_source())
 
-let clear_country_code_source number = ignore (number -> clear_country_code_source())
+let clear_country_code_source number =
+  ignore (number -> clear_country_code_source())
 
-let country_code_source number = get_country_code_source (number -> _country_code_source())
+let country_code_source number =
+  get_country_code_source (number -> _country_code_source())
 
-let set_country_code_source number country_code_source = ignore (number -> set_country_code_source((make_country_code_source country_code_source)))
+let set_country_code_source number country_code_source =
+  ignore (number -> set_country_code_source((make_country_code_source country_code_source)))
 
-let has_preferred_domestic_carrier_code number = get_bool (number -> has_preferred_domestic_carrier_code())
+let has_preferred_domestic_carrier_code number =
+  get_bool (number -> has_preferred_domestic_carrier_code())
 
-let clear_preferred_domestic_carrier_code number = ignore (number -> clear_preferred_domestic_carrier_code())
+let clear_preferred_domestic_carrier_code number =
+  ignore (number -> clear_preferred_domestic_carrier_code())
 
-let preferred_domestic_carrier_code number = get_string (number -> _preferred_domestic_carrier_code())
+let preferred_domestic_carrier_code number =
+  get_string (number -> _preferred_domestic_carrier_code())
 
-let set_preferred_domestic_carrier_code number preferred_domestic_carrier_code = ignore (number -> set_preferred_domestic_carrier_code((make_string preferred_domestic_carrier_code)))
+let set_preferred_domestic_carrier_code number preferred_domestic_carrier_code =
+  ignore (number -> set_preferred_domestic_carrier_code((make_string preferred_domestic_carrier_code)))
+
+type t = {
+  country_code: int option;
+  national_number: int64 option;
+}
+
+let make_option has_fn get_fn number =
+  if has_fn number then Some (get_fn number) else None
+
+let get_option set_fn = function
+	| None -> ()
+	| Some v -> set_fn v
+
+let from_phone_number number = {
+  country_code = make_option has_country_code country_code number;
+  national_number = make_option has_national_number national_number number;
+}
+
+let to_phone_number t =
+  let number = new_phone_number () in
+  get_option (set_country_code number) t.country_code;
+  get_option (set_national_number number) t.national_number;
+  number
 
 let is_alpha_number number =
   get_bool (phone_util -> _IsAlphaNumber((make_string number)))
