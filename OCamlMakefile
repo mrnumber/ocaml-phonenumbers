@@ -99,9 +99,20 @@ ocaml_lib: $(SRCS)
 		-lstdc++ -lprotobuf -licuuc -licui18n -lboost_date_time-mt -lboost_thread-mt \
 		swig.cmo $(INTERFACE:%.i=%.cmo) $(PROGFILE:%.ml=%.cmo) $(INTERFACE:%.i=%_wrap.o) $(OBJS)
 
-ocaml_lib_opt: ocaml_lib
+ocaml_lib_opt: $(SRCS)
+	$(OCAMLCORE)
+	$(SWIG) -ocaml -c++ $(SWIGOPT) $(INTERFACEPATH)
+	cp $(ICXXSRCS) $(ICXXSRCS:%.cxx=%.c)
+	$(OCC) -cc '$(CXX) -Wno-write-strings' -g -c -ccopt -g -ccopt "-xc++ $(INCLUDES)" \
+		$(ICXXSRCS:%.cxx=%.c) $(SRCS) $(CXXSRCS)
+	$(OCC) -g -c $(INTERFACE:%.i=%.mli)
+	$(OCC) -g -c $(INTERFACE:%.i=%.ml)
+	test -z "$(PROGFILE:%.ml=%.mli)" || test -f "$(PROGFILE:%.ml=%.mli)" && \
+		$(OCC) $(OCAMLPP) -c $(PROGFILE:%.ml=%.mli)
+	test -z "$(PROGFILE)" || test -f "$(PROGFILE)" && \
+		$(OCC) $(OCAMLPP) -c $(PROGFILE)
 	$(NOLINK) || $(OCAMLMKLIB) -ccopt -g -cclib -g -o $(TARGET) $(LIBS)\
-		-lstdc++ -lprotobuf -licuuc -licui18n -lboost_date_time-mt -lboost_thread-mt -lphonenumbers\
+		-lstdc++ -lprotobuf -licuuc -licui18n -lboost_date_time-mt -lboost_thread-mt \
 		swig.cmx $(INTERFACE:%.i=%.cmx) $(PROGFILE:%.ml=%.cmx)
 
 ocaml_clean:
