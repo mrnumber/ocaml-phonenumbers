@@ -145,6 +145,12 @@ let phone_util = _PhoneNumberUtilSingleton_GetInstance '()
 
 let new_phone_number () = _new_PhoneNumber '()
 
+let clear number =
+  ignore (number -> Clear())
+
+let is_initialized number =
+  get_bool (number -> IsInitialized())
+
 let has_country_code number =
   get_bool (number -> has_country_code())
 
@@ -248,6 +254,7 @@ let from_phone_number number = {
 
 let to_phone_number t =
   let number = new_phone_number () in
+  clear(number);
   get_option (set_country_code number) t.country_code;
   get_option (set_national_number number) t.national_number;
   number
