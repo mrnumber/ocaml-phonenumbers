@@ -3,22 +3,9 @@
 #include "phonenumbers/phonenumber.pb.h"
 %}
 
-%include stl.i
-%include stdint.i
-
-namespace google {
-  namespace protobuf {
-    typedef int8_t  int8;
-    typedef int16_t int16;
-    typedef int32_t int32;
-    typedef int64_t int64;
-
-    typedef uint8_t  uint8;
-    typedef uint16_t uint16;
-    typedef uint32_t uint32;
-    typedef uint64_t uint64;
-  }
-}
+%include typemaps.i
+SIMPLE_MAP(google::protobuf::int32,caml_val_int,caml_long_val);
+SIMPLE_MAP(google::protobuf::uint64,caml_val_ulong,caml_double_val);
 
 %ignore protobuf_AddDesc_phonenumber_2eproto();
 %ignore protobuf_AssignDesc_phonenumber_2eproto();
