@@ -5,7 +5,7 @@
 
 %include typemaps.i
 SIMPLE_MAP(google::protobuf::int32,caml_val_int,caml_long_val);
-SIMPLE_MAP(google::protobuf::uint64,caml_val_ulong,caml_double_val);
+SIMPLE_MAP(google::protobuf::uint64,caml_val_double,caml_double_val);
 
 %ignore protobuf_AddDesc_phonenumber_2eproto();
 %ignore protobuf_AssignDesc_phonenumber_2eproto();

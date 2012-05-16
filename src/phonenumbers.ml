@@ -136,11 +136,6 @@ let get_validation_result obj = match obj with
     | _ -> raise (LabelNotFromThisEnum obj))
   | _ -> raise (NotEnumType obj)
 
-let make_int64 obj = C_int64 obj
-
-let get_int64 obj = match obj with C_int64 u -> u
-  | _ -> raise (Failure "Can't convert to int64")
-
 let phone_util = _PhoneNumberUtilSingleton_GetInstance '()
 
 let new_phone_number () = _new_PhoneNumber '()
@@ -164,10 +159,10 @@ let clear_national_number number =
   ignore (number -> clear_national_number())
 
 let national_number number =
-  get_int64 (number -> national_number())
+  Int64.of_float (get_float (number -> national_number()))
 
 let set_national_number number national_number =
-  ignore (number -> set_national_number((make_int64 national_number)))
+  ignore (number -> set_national_number((C_int64 national_number)))
 
 let has_extension number =
   get_bool (number -> has_extension())
