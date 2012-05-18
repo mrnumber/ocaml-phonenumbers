@@ -93,10 +93,54 @@ val is_alpha_number : string -> bool
    a keypad, but retains existing formatting. *)
 val convert_alpha_characters_in_number : string -> string
 
+(* Normalizes a string of characters representing a phone number. This performs
+   the following conversions:
+     - Punctuation is stripped.
+     For ALPHA/VANITY numbers:
+     - Letters are converted to their numeric representation on a telephone
+       keypad. The keypad used here is the one defined in ITU Recommendation
+       E.161. This is only done if there are 3 or more letters in the number, to
+       lessen the risk that such letters are typos.
+     For other numbers:
+     - Wide-ascii digits are converted to normal ASCII (European) digits.
+     - Arabic-Indic numerals are converted to European numerals.
+     - Spurious alpha characters are stripped. *)
+val normalize : string -> string
+
 (* Normalizes a string of characters representing a phone number. This
    converts wide-ascii and arabic-indic numerals to European numerals, and
    strips punctuation and alpha characters. *)
 val normalize_digits_only : string -> string
+
+(* Strips any international prefix (such as +, 00, 011) present in the number
+   provided, normalizes the resulting number, and indicates if an international
+   prefix was present.
+
+   possible_idd_prefix represents the international direct dialing prefix from
+   the region we think this number may be dialed in.
+   Returns true if an international dialing prefix could be removed from the
+   number, otherwise false if the number did not seem to be in international
+   format. *)
+val maybe_strip_international_prefix_and_normalize : string -> string -> string
+
+(* Extracts country calling code from national_number, and returns it. It
+   assumes that the leading plus sign or IDD has already been removed. Returns 0
+   if national_number doesn't start with a valid country calling code, and
+   leaves national_number unmodified. Assumes the national_number is at least 3
+   characters long. *)
+val extract_country_code : string -> int
+
+(* Attempts to extract a possible number from the string passed in. This
+   currently strips all leading characters that could not be used to start a
+   phone number. Characters that can be used to start a phone number are
+   defined in the valid_start_char_pattern. If none of these characters are
+   found in the number passed in, an empty string is returned. This function
+   also attempts to strip off any alternative extensions or endings if two or
+   more are present, such as in the case of: (530) 583-6985 x302/x2303. The
+   second extension here makes this actually two phone numbers, (530) 583-6985
+   x302 and (530) 583-6985 x2303. We remove the second extension so that the
+   first number is parsed correctly. *)
+val extract_possible_number : string -> string
 
 (* Gets the national significant number of a phone number. Note a national
    significant number doesn't contain a national prefix or any formatting. *)
@@ -130,8 +174,7 @@ val format : c_obj -> phone_number_format -> string
    regardless of whether the phone number already has a preferred domestic
    carrier code stored. If carrier_code contains an empty string, return the
    number in national format without any carrier code. *)
-val format_national_number_with_carrier_code :
-  c_obj -> string -> string
+val format_national_number_with_carrier_code : c_obj -> string -> string
 
 (* Formats a phone number in national format for dialing using the carrier as
    specified in the preferred_domestic_carrier_code field of the PhoneNumber
@@ -139,8 +182,7 @@ val format_national_number_with_carrier_code :
    in instead. If there is no preferred_domestic_carrier_code, and the
    fallback_carrier_code contains an empty string, return the number in
    national format without any carrier code. *)
-val format_national_number_with_preferred_carrier_code :
-  c_obj -> string -> string
+val format_national_number_with_preferred_carrier_code : c_obj -> string -> string
 
 (* Returns a number formatted in such a way that it can be dialed from a
    mobile phone in a specific region. If the number cannot be reached from
@@ -154,8 +196,7 @@ val format_number_for_mobile_dialing : c_obj -> string -> string
    code). In those cases, no international prefix is used. For regions which
    have multiple international prefixes, the number in its INTERNATIONAL
    format will be returned instead. *)
-val format_out_of_country_calling_number :
-  c_obj -> string -> string
+val format_out_of_country_calling_number : c_obj -> string -> string
 
 (* Formats a phone number using the original phone number format that the
    number is parsed from. The original format is embedded in the
@@ -171,23 +212,22 @@ val format_in_original_format : c_obj -> string -> string
    representation of the number will be used rather than the digit
    representation. Grouping information, as specified by characters such as
    "-" and " ", will be retained. *)
-val format_out_of_country_keeping_alpha_chars :
-  c_obj -> string -> string
+val format_out_of_country_keeping_alpha_chars : c_obj -> string -> string
 
 (* Attempts to extract a valid number from a phone number that is too long to
    be valid, and resets the PhoneNumber object passed in to that valid
    version. If no valid number could be extracted, the PhoneNumber object
    passed in will not be modified. It returns true if a valid phone number can
    be successfully extracted. *)
-val truncate_too_long_number : 'a -> bool
+val truncate_too_long_number : c_obj -> bool
 
 (* Gets the type of a phone number. *)
-val get_number_type : 'a -> phone_number_type
+val get_number_type : c_obj -> phone_number_type
 
 (* Tests whether a phone number matches a valid pattern. Note this doesn't
    verify the number is actually in use, which is impossible to tell by just
    looking at a number itself. *)
-val is_valid_number : 'a -> bool
+val is_valid_number : c_obj -> bool
 
 (* Tests whether a phone number is valid for a certain region. Note this
    doesn't verify the number is actually in use, which is impossible to tell
@@ -201,11 +241,11 @@ val is_valid_number_for_region : c_obj -> string -> bool
 
 (* Returns the region where a phone number is from. This could be used for
    geo-coding at the region level. *)
-val get_region_code_for_number : 'a -> string
+val get_region_code_for_number : c_obj -> string
 
 (* Returns the country calling code for a specific region. For example,
    this would be 1 for the United States, and 64 for New Zealand. *)
-val get_country_code_for_region : 'a -> int
+val get_country_code_for_region : c_obj -> int
 
 (* Returns the region code that matches the specific country code. Note that
    it is possible that several regions share the same country calling code
@@ -241,11 +281,11 @@ val get_ndd_prefix_for_region : string -> bool -> string
         area codes) and length (obviously includes the length of area codes
         for fixed line numbers), it will return false for the
         subscriber-number-only version. *)
-val is_possible_number_with_reason : 'a -> validation_result
+val is_possible_number_with_reason : c_obj -> validation_result
 
 (* Convenience wrapper around IsPossibleNumberWithReason. Instead of returning
    the reason for failure, this method returns a boolean value. *)
-val is_possible_number : 'a -> bool
+val is_possible_number : c_obj -> bool
 
 (* Checks whether a phone number is a possible number given a number in the
    form of a string, and the country where the number could be dialed from.
@@ -263,8 +303,7 @@ val is_possible_number : 'a -> bool
    650 253 0000, it could only be dialed from within the US, and when written
    as 253 0000, it could only be dialed from within a smaller area in the US
    (Mountain View, CA, to be more specific). *)
-val is_possible_number_for_string :
-  c_obj -> c_obj -> bool
+val is_possible_number_for_string : string -> string -> bool
 
 (* Gets a valid fixed-line number for the specified region. Returns false if
    the region was unknown, or the region 001 is passed in. For 001
@@ -302,8 +341,7 @@ val parse : string -> string -> c_obj -> error_type
    from Parse() in that it always populates the raw_input field of the
    protocol buffer with number_to_parse as well as the country_code_source
    field. *)
-val parse_and_keep_raw_input :
-  string -> string -> c_obj -> error_type
+val parse_and_keep_raw_input : string -> string -> c_obj -> error_type
 
 (* Takes two phone numbers and compares them for equality.
    Returns EXACT_MATCH if the country calling code, NSN, presence of a leading

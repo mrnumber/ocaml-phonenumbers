@@ -178,10 +178,57 @@ class PhoneNumberUtil : public Singleton<PhoneNumberUtil> {
   // a keypad, but retains existing formatting.
   void ConvertAlphaCharactersInNumber(string* number) const;
 
+  // Normalizes a string of characters representing a phone number. This performs
+  // the following conversions:
+  //   - Punctuation is stripped.
+  //   For ALPHA/VANITY numbers:
+  //   - Letters are converted to their numeric representation on a telephone
+  //     keypad. The keypad used here is the one defined in ITU Recommendation
+  //     E.161. This is only done if there are 3 or more letters in the number, to
+  //     lessen the risk that such letters are typos.
+  //   For other numbers:
+  //   - Wide-ascii digits are converted to normal ASCII (European) digits.
+  //   - Arabic-Indic numerals are converted to European numerals.
+  //   - Spurious alpha characters are stripped.
+  void Normalize(string* number) const;
+
   // Normalizes a string of characters representing a phone number. This
   // converts wide-ascii and arabic-indic numerals to European numerals, and
   // strips punctuation and alpha characters.
   void NormalizeDigitsOnly(string* number) const;
+
+  // Strips any international prefix (such as +, 00, 011) present in the number
+  // provided, normalizes the resulting number, and indicates if an international
+  // prefix was present.
+  //
+  // possible_idd_prefix represents the international direct dialing prefix from
+  // the region we think this number may be dialed in.
+  // Returns true if an international dialing prefix could be removed from the
+  // number, otherwise false if the number did not seem to be in international
+  // format.
+  PhoneNumber::CountryCodeSource MaybeStripInternationalPrefixAndNormalize(
+      const string& possible_idd_prefix,
+      string* number) const;
+
+  // Extracts country calling code from national_number, and returns it. It
+  // assumes that the leading plus sign or IDD has already been removed. Returns 0
+  // if national_number doesn't start with a valid country calling code, and
+  // leaves national_number unmodified. Assumes the national_number is at least 3
+  // characters long.
+  int ExtractCountryCode(string* national_number) const;
+
+  // Attempts to extract a possible number from the string passed in. This
+  // currently strips all leading characters that could not be used to start a
+  // phone number. Characters that can be used to start a phone number are
+  // defined in the valid_start_char_pattern. If none of these characters are
+  // found in the number passed in, an empty string is returned. This function
+  // also attempts to strip off any alternative extensions or endings if two or
+  // more are present, such as in the case of: (530) 583-6985 x302/x2303. The
+  // second extension here makes this actually two phone numbers, (530) 583-6985
+  // x302 and (530) 583-6985 x2303. We remove the second extension so that the
+  // first number is parsed correctly.
+  void ExtractPossibleNumber(const string& number,
+                             string* extracted_number) const;
 
   // Gets the national significant number of a phone number. Note a national
   // significant number doesn't contain a national prefix or any formatting.
@@ -714,24 +761,15 @@ class PhoneNumberUtil : public Singleton<PhoneNumberUtil> {
   // used by MaybeStripInternationalPrefixAndNormalize.
   bool ParsePrefixAsIdd(const RegExp& idd_pattern, string* number) const;
 
-  void Normalize(string* number) const;
-  PhoneNumber::CountryCodeSource MaybeStripInternationalPrefixAndNormalize(
-      const string& possible_idd_prefix,
-      string* number) const;
-
   bool MaybeStripNationalPrefixAndCarrierCode(
       const PhoneMetadata& metadata,
       string* number,
       string* carrier_code) const;
 
-  void ExtractPossibleNumber(const string& number,
-                             string* extracted_number) const;
-
   bool IsViablePhoneNumber(const string& number) const;
 
   bool MaybeStripExtension(string* number, string* extension) const;
 
-  int ExtractCountryCode(string* national_number) const;
   ErrorType MaybeExtractCountryCode(
       const PhoneMetadata* default_region_metadata,
       bool keepRawInput,

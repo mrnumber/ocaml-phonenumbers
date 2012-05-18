@@ -32,8 +32,20 @@ using namespace i18n::phonenumbers;
     return number;
   }
 
+  string _Normalize(string number) const {
+    self->Normalize(&number);
+    return number;
+  }
+
   string _NormalizeDigitsOnly(string number) const {
     self->NormalizeDigitsOnly(&number);
+    return number;
+  }
+
+  string _MaybeStripInternationalPrefixAndNormalize(
+      string possible_idd_prefix,
+      string number) const {
+    self->MaybeStripInternationalPrefixAndNormalize(possible_idd_prefix, &number);
     return number;
   }
 
@@ -141,5 +153,11 @@ using namespace i18n::phonenumbers;
 
   MatchType _IsNumberMatchWithOneString(const PhoneNumber& first_number, string second_number) const {
     return self->IsNumberMatchWithOneString(first_number, second_number);
+  }
+
+  string ExtractPossibleNumber(string number) const {
+    string extracted_number;
+    self->ExtractPossibleNumber(number, &extracted_number);
+    return extracted_number;
   }
 }

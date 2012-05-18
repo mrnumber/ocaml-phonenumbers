@@ -253,8 +253,20 @@ let is_alpha_number number =
 let convert_alpha_characters_in_number number =
   get_string (phone_util -> _ConvertAlphaCharactersInNumber((make_string number)))
 
+let normalize number =
+  get_string (phone_util -> _Normalize((make_string number)))
+
 let normalize_digits_only number =
   get_string (phone_util -> _NormalizeDigitsOnly((make_string number)))
+
+let maybe_strip_international_prefix_and_normalize possible_idd_prefix number =
+  get_string (phone_util -> _MaybeStripInternationalPrefixAndNormalize((make_string possible_idd_prefix), (make_string number)))
+
+let extract_country_code number =
+  get_int (phone_util -> ExtractCountryCode((make_string number)))
+
+let extract_possible_number number =
+  get_string (phone_util -> ExtractPossibleNumber((make_string number)))
 
 let get_national_significant_number number =
   get_string (phone_util -> GetNationalSignificantNumber(number))
@@ -320,7 +332,7 @@ let is_possible_number number =
   get_bool (phone_util -> IsPossibleNumber(number))
 
 let is_possible_number_for_string number region_dialing_from =
-  get_bool (phone_util -> _IsPossibleNumberForString(number, region_dialing_from))
+  get_bool (phone_util -> _IsPossibleNumberForString((make_string number), (make_string region_dialing_from)))
 
 let get_example_number region_code number =
   get_bool (phone_util -> _GetExampleNumber((make_string region_code), number))
