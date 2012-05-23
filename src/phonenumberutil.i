@@ -49,49 +49,55 @@ using namespace i18n::phonenumbers;
     return number;
   }
 
-  string GetNationalSignificantNumber(const PhoneNumber& number) const {
+  string _ExtractPossibleNumber(string number) const {
+    string extracted_number;
+    self->ExtractPossibleNumber(number, &extracted_number);
+    return extracted_number;
+  }
+
+  string _GetNationalSignificantNumber(const PhoneNumber& number) const {
     string national_significant_num;
     self->GetNationalSignificantNumber(number, &national_significant_num);
     return national_significant_num;
   }
 
-  string Format(const PhoneNumber& number, PhoneNumberFormat number_format) const {
+  string _Format(const PhoneNumber& number, PhoneNumberFormat number_format) const {
     string formatted_number;
     self->Format(number, number_format, &formatted_number);
     return formatted_number;
   }
 
-  string FormatNationalNumberWithCarrierCode(const PhoneNumber& number, string carrier_code) const {
+  string _FormatNationalNumberWithCarrierCode(const PhoneNumber& number, string carrier_code) const {
     string formatted_number;
     self->FormatNationalNumberWithCarrierCode(number, carrier_code, &formatted_number);
     return formatted_number;
   }
 
-  string FormatNationalNumberWithPreferredCarrierCode(const PhoneNumber& number, string fallback_carrier_code) const {
+  string _FormatNationalNumberWithPreferredCarrierCode(const PhoneNumber& number, string fallback_carrier_code) const {
     string formatted_number;
     self->FormatNationalNumberWithPreferredCarrierCode(number, fallback_carrier_code, &formatted_number);
     return formatted_number;
   }
 
-  string FormatNumberForMobileDialing(const PhoneNumber& number, string region_calling_from, bool with_formatting) const {
+  string _FormatNumberForMobileDialing(const PhoneNumber& number, string region_calling_from, bool with_formatting) const {
     string formatted_number;
     self->FormatNumberForMobileDialing(number, region_calling_from, with_formatting, &formatted_number);
     return formatted_number;
   }
 
-  string FormatOutOfCountryCallingNumber(const PhoneNumber& number, string calling_from) const {
+  string _FormatOutOfCountryCallingNumber(const PhoneNumber& number, string calling_from) const {
     string formatted_number;
     self->FormatOutOfCountryCallingNumber(number, calling_from, &formatted_number);
     return formatted_number;
   }
 
-  string FormatInOriginalFormat(const PhoneNumber& number, string region_calling_from) const {
+  string _FormatInOriginalFormat(const PhoneNumber& number, string region_calling_from) const {
     string formatted_number;
     self->FormatInOriginalFormat(number, region_calling_from, &formatted_number);
     return formatted_number;
   }
 
-  string FormatOutOfCountryKeepingAlphaChars(const PhoneNumber& number, string calling_from) const {
+  string _FormatOutOfCountryKeepingAlphaChars(const PhoneNumber& number, string calling_from) const {
     string formatted_number;
     self->FormatOutOfCountryKeepingAlphaChars(number, calling_from, &formatted_number);
     return formatted_number;
@@ -101,7 +107,7 @@ using namespace i18n::phonenumbers;
     return self->IsValidNumberForRegion(number, region_code);
   }
 
-  string GetRegionCodeForNumber(const PhoneNumber& number) const {
+  string _GetRegionCodeForNumber(const PhoneNumber& number) const {
     string region_code;
     self->GetRegionCodeForNumber(number, &region_code);
     return region_code;
@@ -111,7 +117,7 @@ using namespace i18n::phonenumbers;
     return self->GetCountryCodeForRegion(region_code);
   }
 
-  string GetRegionCodeForCountryCode(int country_code) const {
+  string _GetRegionCodeForCountryCode(int country_code) const {
     string region_code;
     self->GetRegionCodeForCountryCode(country_code, &region_code);
     return region_code;
@@ -121,7 +127,7 @@ using namespace i18n::phonenumbers;
     return self->IsNANPACountry(region_code);
   }
 
-  string GetNddPrefixForRegion(string region_code, bool strip_non_digits) const {
+  string _GetNddPrefixForRegion(string region_code, bool strip_non_digits) const {
     string national_prefix;
     self->GetNddPrefixForRegion(region_code, strip_non_digits, &national_prefix);
     return national_prefix;
@@ -153,11 +159,5 @@ using namespace i18n::phonenumbers;
 
   MatchType _IsNumberMatchWithOneString(const PhoneNumber& first_number, string second_number) const {
     return self->IsNumberMatchWithOneString(first_number, second_number);
-  }
-
-  string ExtractPossibleNumber(string number) const {
-    string extracted_number;
-    self->ExtractPossibleNumber(number, &extracted_number);
-    return extracted_number;
   }
 }

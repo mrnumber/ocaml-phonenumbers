@@ -266,10 +266,10 @@ let extract_country_code number =
   get_int (phone_util -> ExtractCountryCode((make_string number)))
 
 let extract_possible_number number =
-  get_string (phone_util -> ExtractPossibleNumber((make_string number)))
+  get_string (phone_util -> _ExtractPossibleNumber((make_string number)))
 
 let get_national_significant_number number =
-  get_string (phone_util -> GetNationalSignificantNumber(number))
+  get_string (phone_util -> _GetNationalSignificantNumber(number))
 
 let get_length_of_geographical_area_code number =
   get_int (phone_util -> GetLengthOfGeographicalAreaCode(number))
@@ -278,25 +278,25 @@ let get_length_of_national_destination_code number =
   get_int (phone_util -> GetLengthOfNationalDestinationCode(number))
 
 let format number phone_number_format =
-  get_string (phone_util -> Format(number, (make_phone_number_format phone_number_format)))
+  get_string (phone_util -> _Format(number, (make_phone_number_format phone_number_format)))
 
 let format_national_number_with_carrier_code number carrier_code =
-  get_string (phone_util -> FormatNationalNumberWithCarrierCode(number, (make_string carrier_code)))
+  get_string (phone_util -> _FormatNationalNumberWithCarrierCode(number, (make_string carrier_code)))
 
 let format_national_number_with_preferred_carrier_code number fallback_carrier_code =
-  get_string (phone_util -> FormatNationalNumberWithPreferredCarrierCode(number, (make_string fallback_carrier_code)))
+  get_string (phone_util -> _FormatNationalNumberWithPreferredCarrierCode(number, (make_string fallback_carrier_code)))
 
 let format_number_for_mobile_dialing number region_calling_from =
-  get_string (phone_util -> FormatNumberForMobileDialing(number, (make_string region_calling_from)))
+  get_string (phone_util -> _FormatNumberForMobileDialing(number, (make_string region_calling_from)))
 
 let format_out_of_country_calling_number number calling_from =
-  get_string (phone_util -> FormatOutOfCountryCallingNumber(number, (make_string calling_from)))
+  get_string (phone_util -> _FormatOutOfCountryCallingNumber(number, (make_string calling_from)))
 
 let format_in_original_format number region_calling_from =
-  get_string (phone_util -> FormatInOriginalFormat(number, (make_string region_calling_from)))
+  get_string (phone_util -> _FormatInOriginalFormat(number, (make_string region_calling_from)))
 
 let format_out_of_country_keeping_alpha_chars number calling_from =
-  get_string (phone_util -> FormatOutOfCountryKeepingAlphaChars(number, (make_string calling_from)))
+  get_string (phone_util -> _FormatOutOfCountryKeepingAlphaChars(number, (make_string calling_from)))
 
 let truncate_too_long_number number =
   get_bool (phone_util -> TruncateTooLongNumber(number))
@@ -311,19 +311,19 @@ let is_valid_number_for_region number region_code =
   get_bool (phone_util -> _IsValidNumberForRegion(number, (make_string region_code)))
 
 let get_region_code_for_number number =
-  get_string (phone_util -> GetRegionCodeForNumber(number))
+  get_string (phone_util -> _GetRegionCodeForNumber(number))
 
 let get_country_code_for_region region_code =
   get_int (phone_util -> _GetCountryCodeForRegion(region_code))
 
 let get_region_code_for_country_code country_code =
-  get_string (phone_util -> GetRegionCodeForCountryCode((make_int country_code)))
+  get_string (phone_util -> _GetRegionCodeForCountryCode((make_int country_code)))
 
 let is_nanpa_country region_code =
   get_bool (phone_util -> _IsNANPACountry((make_string region_code)))
 
 let get_ndd_prefix_for_region region_code strip_non_digits =
-  get_string (phone_util -> GetNddPrefixForRegion((make_string region_code), (make_bool strip_non_digits)))
+  get_string (phone_util -> _GetNddPrefixForRegion((make_string region_code), (make_bool strip_non_digits)))
 
 let is_possible_number_with_reason number =
   get_validation_result (phone_util -> IsPossibleNumberWithReason(number))
