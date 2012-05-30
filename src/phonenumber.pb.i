@@ -14,6 +14,10 @@ SIMPLE_MAP(google::protobuf::uint64,caml_val_double,caml_double_val);
 
 %include "phonenumbers/phonenumber.pb.h"
 %extend i18n::phonenumbers::PhoneNumber {
+  static PhoneNumber* GetInstance() {
+    return (PhoneNumber*) &PhoneNumber::default_instance();
+  }
+
   std::string _extension() const {
     return self->extension();
   }

@@ -70,6 +70,8 @@ type validation_result =
   | TOO_SHORT
   | TOO_LONG
 
+val get_instance : unit -> c_obj
+
 val new_phone_number : unit -> c_obj
 
 val delete_phone_number : c_obj -> unit

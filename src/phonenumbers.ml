@@ -138,6 +138,8 @@ let get_validation_result obj = match obj with
 
 let phone_util = _PhoneNumberUtilSingleton_GetInstance '()
 
+let get_instance () = _PhoneNumber_GetInstance '()
+
 let new_phone_number () = _new_PhoneNumber '()
 
 let delete_phone_number number = ignore (_delete_PhoneNumber number)
