@@ -246,7 +246,7 @@ let from_phone_number number = {
 }
 
 let to_phone_number t =
-  let number = new_phone_number () in
+  let number = get_instance () in
   get_option (set_country_code number) t.country_code;
   get_option (set_national_number number) t.national_number;
   number
