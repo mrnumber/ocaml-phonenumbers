@@ -140,6 +140,8 @@ let phone_util = _PhoneNumberUtilSingleton_GetInstance '()
 
 let new_phone_number () = _new_PhoneNumber '()
 
+let delete_phone_number number = ignore (_delete_PhoneNumber number)
+
 let has_country_code number =
   get_bool (number -> has_country_code())
 

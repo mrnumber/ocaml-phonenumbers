@@ -72,6 +72,8 @@ type validation_result =
 
 val new_phone_number : unit -> c_obj
 
+val delete_phone_number : c_obj -> unit
+
 type t = {
   country_code: int option;
   national_number: int64 option;
