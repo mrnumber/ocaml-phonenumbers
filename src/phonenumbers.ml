@@ -144,6 +144,14 @@ let new_phone_number () = _new_PhoneNumber '()
 
 let delete_phone_number number = ignore (_delete_PhoneNumber number)
 
+let clear_phone_number number =
+  ignore (number -> Clear())
+
+let get_instance_anew () =
+  let o = get_instance () in
+  clear_phone_number o;
+  o
+
 let has_country_code number =
   get_bool (number -> has_country_code())
 
@@ -246,7 +254,7 @@ let from_phone_number number = {
 }
 
 let to_phone_number t =
-  let number = get_instance () in
+  let number = get_instance_anew () in
   get_option (set_country_code number) t.country_code;
   get_option (set_national_number number) t.national_number;
   number
