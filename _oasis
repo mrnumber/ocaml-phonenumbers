@@ -1,0 +1,15 @@
+OASISFormat: 0.3
+Name:        phonenumbers
+Version:     0.1
+Synopsis:    OCaml version of the libphonenumber project
+Authors:     Ryland Degnan
+License:     Apache-2.0
+Plugins:     META (0.3)
+BuildType:   Custom (0.3)
+XCustomBuild: make -C src all opt PREFIX=$(prefix)
+XCustomBuildClean: make -C src clean
+
+Library phonenumbers
+  Path: src
+  BuildTools: swig
+  Modules: Phonenumbers

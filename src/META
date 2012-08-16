@@ -1,0 +1,10 @@
+# OASIS_START
+# DO NOT EDIT (digest: 0b899c353ba9c1290ad07d58a676bc94)
+version = "0.1"
+description = "OCaml version of the libphonenumber project"
+archive(byte) = "phonenumbers.cma"
+archive(byte, plugin) = "phonenumbers.cma"
+archive(native) = "phonenumbers.cmxa"
+archive(native, plugin) = "phonenumbers.cmxs"
+exists_if = "phonenumbers.cma"
+# OASIS_STOP
