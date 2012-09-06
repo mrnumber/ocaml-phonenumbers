@@ -113,12 +113,15 @@ namespace i18n {
 namespace phonenumbers {
 
 inline LoggerHandler VLOG(int n) {
+  /*
   Logger* const logger_impl = Logger::mutable_logger_impl();
   if (logger_impl->level() < n) {
     return LoggerHandler(NULL);
   }
   logger_impl->WriteLevel();
   return LoggerHandler(logger_impl);
+  */
+  return LoggerHandler(NULL);
 }
 
 inline LoggerHandler LOG(int n) {
